@@ -1,5 +1,5 @@
 {
-    "name": "weeks-nodejs ",
+    "name": "weeks",
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
@@ -16,6 +16,8 @@
         "dotenv": "^8.2.0",
         "express": "^4.17.1",
         "mongoose": "^5.10.16",
-        "pug": "^3.0.0"
+        "pug": "^3.0.0",
+        "puppeteer": "^5.5.0"
     }
 }
+              
