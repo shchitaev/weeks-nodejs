@@ -1,4 +1,3 @@
-
 export default function appScr(express, bodyParser, fs, crypto, http, CORS, User, m, puppeteer) {
     const app = express();
     const path = import.meta.url.substring(7);
@@ -73,4 +72,3 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
         .use(({res:r})=>r.status(404).set(headersHTML).send('itmo287704'))
         .set('view engine','pug')
     return app;
-}
