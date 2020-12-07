@@ -55,21 +55,6 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
                 console.log(e.codeName);
             }      
         })
-        .all('/render/',async(req,res)=>{
-            r.res.set(headersHTML);
-            const {addr} = req.query;
-            const {random2, random3} = req.body;
-            
-            http.get(addr,(r, b='') => {
-                r
-                    .on('data',d=>b+=d)
-                    .on('end',()=>{
-                        writeFileSync(path.replace('app.js','')+'views/index.pug', b);
-                        res.render('index',{random2:random3})
-                    })
-
-            })
-        })
         .all('/test/', async r=>{
             r.res.set(headersTEXT)
             const {URL} = r.query;
@@ -84,7 +69,7 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
             browser.close()
             r.res.send(got)
             
-        })   
+        })
         .use(({res:r})=>r.status(404).set(headersHTML).send('itmo287704'))
         .set('view engine','pug')
     return app;
