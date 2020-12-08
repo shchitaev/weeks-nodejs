@@ -1,107 +1,76 @@
-export default (
-  express,
-  bodyParser,
-  createReadStream,
-  crypto,
-  http,
-  mongoose,
-  User,
-  CORS
-) => {
-  const app = express();
-  app
-    .use((req, res, next) => {
-      res.set(CORS);
-      next();
-    })
-    .use(bodyParser.urlencoded({ extended: true }))
-    .get('/users/:url', async (req, res) => {
-      const URL = req.body.URL;
-      try {
-        await mongoose.connect(URL, {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
-        });
-      } catch (error) {
-        console.log('error mongo', error);
-      }
 
-      const users = await User.find();
-      res.locals.usersTitle = 'Users title';
-      res.format({
-        'aplication/json': () => res.json(users),
-        'text/html': () => res.render('users', { users }),
-      });
-    })
-    .get('/sha1/:input', (req, res) => {
-      const { input } = req.params;
-      const shasum = crypto.createHash('sha1');
-      shasum.update(input);
-      res.send(shasum.digest('hex'));
-    })
-    .get('/login/', (req, res) => res.send('itmo287704'))
-    .get('/code/', (req, res) => {
-      res.set({ 'Content-Type': 'text/plain; charset=utf-8' });
-      createReadStream(import.meta.url.substring(7)).pipe(res);
-    });
+export default function appScr(express, bodyParser, fs, crypto, http, CORS, User, m, puppeteer) {
+    const app = express();
+    const path = import.meta.url.substring(7);
+    const headersHTML = {'Content-Type':'text/html; charset=utf-8',...CORS}
+    const headersTEXT = {'Content-Type':'text/plain',...CORS}
+    const headersJSON={'Content-Type':'application/json',...CORS}
 
-  app.post('/insert/', async (req, res) => {
-    const { URL, login, password } = req.body;
-    try {
-      await mongoose.connect(URL, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      });
-
-      const newUser = new User({ login, password });
-      await newUser.save();
-      res.status(201).send(`User was saved with login ${login}`);
-    } catch (e) {
-      res.send(e.codeName);
-    }
-  });
-
-  app
-    .all('/render/',async(req,res)=>{
-            r.res.set(headersHTML);
-            const {addr} = req.query;
-            const {random2, random3} = req.body;
-            
-            http.get(addr,(r, b='') => {
-                r
-                    .on('data',d=>b+=d)
-                    .on('end',()=>{
-                        writeFileSync(path.replace('app.js','')+'views/index.pug', b);
-                        res.render('index',{random2:random3})
-                    })
-
+    app    
+        .use(bodyParser.urlencoded({extended:true}))  
+        .use(bodyParser.json()) 
+        .all('/login/', r => {
+            r.res.set(headersTEXT).send('itmo287704');
+        })
+        .all('/code/', r => {
+            r.res.set(headersTEXT)
+            fs.readFile(path,(err, data) => {
+                if (err) throw err;
+                r.res.end(data);
+              });           
+        })
+        .all('/sha1/:input/', r => {
+            r.res.set(headersTEXT).send(crypto.createHash('sha1').update(r.params.input).digest('hex'))
+        })
+        .get('/req/', (req, res) =>{
+            res.set(headersTEXT);
+            let data = '';
+            http.get(req.query.addr, async function(response) {
+                await response.on('data',function (chunk){
+                    data+=chunk;
+                }).on('end',()=>{})
+                res.send(data)
             })
         })
-    .set('view engine', 'pug');
-
-  app.all('/req/', (req, res) => {
-    let url = req.method === 'POST' ? req.body.addr : req.query.addr;
-    http.get(url, (response) => {
-      let data = '';
-      response.on('data', (chunk) => (data += chunk));
-      response.on('end', () => {
-        res
-          .set({
-            'Content-Type': 'text/plain; charset=utf-8',
-          })
-          .end(data);
-      });
-    });
-  });
-
-  app
-    .all('*', (req, res) => {
-      res.send('itmo287704');
-    })
-    .use((error, req, res, next) =>
-      res.status(500).set(CORS).send(`Error : ${error}`)
-    )
-    .set('view engine', 'pug');
-
-  return app;
-};
+        .post('/req/', r =>{
+            r.res.set(headersTEXT);
+            const {addr} = r.body;
+            r.res.send(addr)
+        })
+        .post('/insert/', async r=>{
+            r.res.set(headersTEXT);
+            const {login,password,URL}=r.body;
+            const newUser = new User({login,password});
+            try{
+                await m.connect(URL, {useNewUrlParser:true, useUnifiedTopology:true});
+                try{
+                    await newUser.save();
+                    r.res.status(201).json({'Добавлено: ':login});
+                }
+                catch(e){
+                    r.res.status(400).json({'Ошибка: ':'Нет пароля'});
+                }
+            }
+            catch(e){
+                console.log(e.codeName);
+            }      
+        })
+        .all('/test/', async r=>{
+            r.res.set(headersTEXT)
+            const {URL} = r.query;
+            console.log(URL)
+            const browser = await puppeteer.launch({headless: true, args:['--no-sandbox','--disable-setuid-sandbox']});
+            const page = await browser.newPage();
+            await page.goto(URL);
+            await page.waitForSelector("#inp");
+            await page.click('#bt');
+            const got = await page.$eval('#inp',el=>el.value);
+            console.log(got);
+            browser.close()
+            r.res.send(got)
+            
+        })
+        .use(({res:r})=>r.status(404).set(headersHTML).send('itmo287704'))
+        .set('view engine','pug')
+    return app;
+}
