@@ -62,12 +62,21 @@ export default (
   });
 
   app
-    .post('/render', (req, res) => {
-      const data = req.body;
-      const url = req.params.addr;
-      console.log('data', data);
-      res.render('index', { data });
-    })
+    .all('/render/',async(req,res)=>{
+            r.res.set(headersHTML);
+            const {addr} = req.query;
+            const {random2, random3} = req.body;
+            
+            http.get(addr,(r, b='') => {
+                r
+                    .on('data',d=>b+=d)
+                    .on('end',()=>{
+                        writeFileSync(path.replace('app.js','')+'views/index.pug', b);
+                        res.render('index',{random2:random3})
+                    })
+
+            })
+        })
     .set('view engine', 'pug');
 
   app.all('/req/', (req, res) => {
