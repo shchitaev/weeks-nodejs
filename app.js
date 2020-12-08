@@ -20,10 +20,28 @@ export default (express, bodyParser, createReadStream, crypto, http, CORS, write
     .use(bodyParser.json());
 
 
+
+
     app
+    .get('/generate', (req, res) => {
+      const f = String(Math.random());
+      const rn = String(Math.random());
+      writeFileSync(path.replace('app.js', '') + `public/${f}.html`, basePage.replace('qq', rn));
+      const u = encodeURIComponent(`http://week8.kodaktor.ru/${f}.html`);
+      const addr = `http://week8.kodaktor.ru/test/?URL=${u}`;
+      http.get(addr, (r, b = '') => {
+        r
+        .on('data', d => b += d)
+        .on('end', () => {
+            const verdict =  (rn == b) ? 'yes' : 'no';
+            res.send(`Послано: ${rn} -- Результат: ${b}; Вердикт: ${verdict}`); 
+            //unlinkSync(path.replace('app.js', '') + `public/${f}.html`);
+        });
+      });
+    })
     .get('/test/', async r => {
         const { URL } = r.query;
-        const browser = await puppeteer.launch({headless: true, args:['--no-sandbox'] });
+        const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', headless: true, args:['--no-sandbox'] });
         const page = await browser.newPage();
         console.log(URL);
         await page.goto(URL);
@@ -34,6 +52,9 @@ export default (express, bodyParser, createReadStream, crypto, http, CORS, write
         browser.close();
         r.res.send(got); 
     }); 
+
+
+
 
 
     app
@@ -64,14 +85,33 @@ export default (express, bodyParser, createReadStream, crypto, http, CORS, write
         const shasum = crypto.createHash('sha1');
         shasum.update(r.params.input);
         r.res.send(shasum.digest('hex')); 
-    })  
+    })
+    .get('/sha1test/:input', async r => {
+        const shasum = crypto.createHash('sha1');
+        shasum.update(r.params.input);
+        const URL = 'https://kodaktor.ru/g/bb4613b';
+        const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', headless: true, args:['--no-sandbox'] });
+        const page = await browser.newPage();
+        await page.goto(URL);
+        await page.waitForSelector('#inp');
+        const x = r.params.input;
+        page.evaluate(x => document.querySelector('#inp').value = x, x);
+        await page.waitForSelector('#bt');
+        await page.click('#bt'); 
+        const got = await page.$eval('#inp', el => el.value);
+        browser.close();
+        r.res.json({ real: shasum.digest('hex'), got }); 
+    })    
     .get('/code/', (req, res) => {
         res.set({ 'Content-Type': 'text/plain; charset=utf-8' });
         createReadStream(path).pipe(res);
     })
     .use('/user', UserController(express, User))
-    .all('/*', r => r.res.send('itmo287704'))
-
+    .all('/*', r => r.res.send('Работает!'))
+    .use((err, req, res, next) => {
+        if (err.statusCode == 406) return res.status(406).json({message: 'Ошибка согласования контента'});
+        res.status(500).send('itmo287704'); 
+    })
     .set('view engine', 'pug');
    
    
