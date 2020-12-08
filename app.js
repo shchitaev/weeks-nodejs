@@ -21,22 +21,6 @@ export default (express, bodyParser, createReadStream, crypto, http, CORS, write
     .use(bodyParser.json());
 
     app
-    .get('/generate', (req, res) => {
-      const f = String(Math.random());
-      const rn = String(Math.random());
-      writeFileSync(path.replace('app.js', '') + `public/${f}.html`, basePage.replace('qq', rn));
-      const u = encodeURIComponent(`http://week8.kodaktor.ru/${f}.html`);
-      const addr = `http://week8.kodaktor.ru/test/?URL=${u}`;
-      http.get(addr, (r, b = '') => {
-        r
-        .on('data', d => b += d)
-        .on('end', () => {
-            const verdict =  (rn == b) ? 'yes' : 'no';
-            res.send(`Послано: ${rn} -- Результат: ${b}; Вердикт: ${verdict}`); 
-            //unlinkSync(path.replace('app.js', '') + `public/${f}.html`);
-        });
-      });
-    })
     .get('/test/', async r => {
         const { URL } = r.query;
         const browser = await puppeteer.launch({headless: true, args:['--no-sandbox','--disable-setuid-sandbox']});
@@ -85,7 +69,7 @@ export default (express, bodyParser, createReadStream, crypto, http, CORS, write
         res.set({ 'Content-Type': 'text/plain; charset=utf-8' });
         createReadStream(path).pipe(res);
     })
-    .use('/user', UserController(express, User))
+    
     .all('/*', r => r.res.send(author))
     .use((err, req, res, next) => {
         if (err.statusCode == 406) return res.status(406).json({message: 'Ошибка согласования контента'});
