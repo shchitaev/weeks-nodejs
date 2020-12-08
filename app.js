@@ -1,7 +1,6 @@
-
 export default (express, bodyParser, createReadStream, crypto, http, CORS, writeFileSync, User, UserController, LOGIN, puppeteer, unlinkSync) => {
     const app = express();
-    const author = 'itmo287704';
+
     const basePage = `<input type="text" id="inp"><button onclick="this.previousSibling.value='qq'" id="bt">=)</button>`;
 
     const path = import.meta.url.substring(7);
@@ -20,10 +19,11 @@ export default (express, bodyParser, createReadStream, crypto, http, CORS, write
     .use(bodyParser.urlencoded({ extended: true }))
     .use(bodyParser.json());
 
+
     app
     .get('/test/', async r => {
         const { URL } = r.query;
-        const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', headless: true, args:['--no-sandbox'] });
+        const browser = await puppeteer.launch({headless: true, args:['--no-sandbox'] });
         const page = await browser.newPage();
         console.log(URL);
         await page.goto(URL);
@@ -34,6 +34,7 @@ export default (express, bodyParser, createReadStream, crypto, http, CORS, write
         browser.close();
         r.res.send(got); 
     }); 
+
 
     app
     .all('/req/', (req, res) => {
@@ -58,25 +59,22 @@ export default (express, bodyParser, createReadStream, crypto, http, CORS, write
            });
         });
     })     
-    .get('/login/', (req, res) => res.send(LOGIN || author))  
+    .get('/login/', (req, res) => res.send(LOGIN || 'itmo287704'))  
     .get('/sha1/:input', r => {
         const shasum = crypto.createHash('sha1');
         shasum.update(r.params.input);
         r.res.send(shasum.digest('hex')); 
-    })
- 
+    })  
     .get('/code/', (req, res) => {
         res.set({ 'Content-Type': 'text/plain; charset=utf-8' });
         createReadStream(path).pipe(res);
     })
-    
-    .all('/*', r => r.res.send(author))
-    .use((err, req, res, next) => {
-        if (err.statusCode == 406) return res.status(406).json({message: 'Ошибка согласования контента'});
-        res.status(500).send('Ошибка'); 
-    })
-    .set('view engine', 'pug');
+    .use('/user', UserController(express, User))
+    .all('/*', r => r.res.send('itmo287704'))
 
+    .set('view engine', 'pug');
+   
    
     return app;
+
 };
