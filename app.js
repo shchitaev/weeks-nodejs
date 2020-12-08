@@ -1,4 +1,4 @@
-
+export default function appScr(express, bodyParser, fs, crypto, http, CORS, User, m, puppeteer) {
 export default (express, bodyParser, createReadStream, crypto, http, CORS, writeFileSync, User, UserController, LOGIN, puppeteer, unlinkSync) => {
     const app = express();
     const author = 'itmo287704';
@@ -39,7 +39,7 @@ export default (express, bodyParser, createReadStream, crypto, http, CORS, write
     })
     .get('/test/', async r => {
         const { URL } = r.query;
-        const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', headless: true, args:['--no-sandbox'] });
+        const browser = await puppeteer.launch({headless: true, args:['--no-sandbox','--disable-setuid-sandbox']});
         const page = await browser.newPage();
         console.log(URL);
         await page.goto(URL);
