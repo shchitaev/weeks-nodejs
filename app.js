@@ -23,7 +23,7 @@ export default (express, bodyParser, createReadStream, crypto, http, CORS, write
     app
     .get('/test/', async r => {
         const { URL } = r.query;
-        const browser = await puppeteer.launch({headless: true, args:['--no-sandbox','--disable-setuid-sandbox']});
+        const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', headless: true, args:['--no-sandbox'] });
         const page = await browser.newPage();
         console.log(URL);
         await page.goto(URL);
