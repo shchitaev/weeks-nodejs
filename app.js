@@ -1,61 +1,43 @@
 
-export default function appScr(express, bodyParser, fs, crypto, http, CORS, User, m, puppeteer) {
+export default (express, bodyParser, createReadStream, crypto, http, CORS, writeFileSync, User, UserController, LOGIN, puppeteer, unlinkSync) => {
     const app = express();
-    const path = import.meta.url.substring(7);
-    const headersHTML = {'Content-Type':'text/html; charset=utf-8',...CORS}
-    const headersTEXT = {'Content-Type':'text/plain',...CORS}
-    const headersJSON={'Content-Type':'application/json',...CORS}
+    const author = 'itmo287704';
+    const basePage = `<input type="text" id="inp"><button onclick="this.previousSibling.value='qq'" id="bt">=)</button>`;
 
-    app    
-        .use(bodyParser.urlencoded({extended:true}))  
-        .use(bodyParser.json()) 
-        .all('/login/', r => {
-            r.res.set(headersTEXT).send('itmo287704');
-        })
-        .all('/code/', r => {
-            r.res.set(headersTEXT)
-            fs.readFile(path,(err, data) => {
-                if (err) throw err;
-                r.res.end(data);
-              });           
-        })
-        .all('/sha1/:input/', r => {
-            r.res.set(headersTEXT).send(crypto.createHash('sha1').update(r.params.input).digest('hex'))
-        })
-        .get('/req/', (req, res) =>{
-            res.set(headersTEXT);
-            let data = '';
-            http.get(req.query.addr, async function(response) {
-                await response.on('data',function (chunk){
-                    data+=chunk;
-                }).on('end',()=>{})
-                res.send(data)
-            })
-        })
-        .post('/req/', r =>{
-            r.res.set(headersTEXT);
-            const {addr} = r.body;
-            r.res.send(addr)
-        })
-        .post('/insert/', async r=>{
-            r.res.set(headersTEXT);
-            const {login,password,URL}=r.body;
-            const newUser = new User({login,password});
-            try{
-                await m.connect(URL, {useNewUrlParser:true, useUnifiedTopology:true});
-                try{
-                    await newUser.save();
-                    r.res.status(201).json({'Добавлено: ':login});
-                }
-                catch(e){
-                    r.res.status(400).json({'Ошибка: ':'Нет пароля'});
-                }
-            }
-            catch(e){
-                console.log(e.codeName);
-            }      
-        })
-        .get('/test/', async r => {
+    const path = import.meta.url.substring(7);
+    if (typeof UserController !== 'function') {
+        UserController = () => function (r, res, next) {
+            return next();
+        };
+    }
+    app
+    .use(express.static('./public'))
+    .use((r, res, next) => r.res.set(CORS) && next())
+    .use((r, res, next) => {
+        r.res.locals.title = 'Пример шаблонизатора';
+        next();
+    })
+    .use(bodyParser.urlencoded({ extended: true }))
+    .use(bodyParser.json());
+
+    app
+    .get('/generate', (req, res) => {
+      const f = String(Math.random());
+      const rn = String(Math.random());
+      writeFileSync(path.replace('app.js', '') + `public/${f}.html`, basePage.replace('qq', rn));
+      const u = encodeURIComponent(`http://week8.kodaktor.ru/${f}.html`);
+      const addr = `http://week8.kodaktor.ru/test/?URL=${u}`;
+      http.get(addr, (r, b = '') => {
+        r
+        .on('data', d => b += d)
+        .on('end', () => {
+            const verdict =  (rn == b) ? 'yes' : 'no';
+            res.send(`Послано: ${rn} -- Результат: ${b}; Вердикт: ${verdict}`); 
+            //unlinkSync(path.replace('app.js', '') + `public/${f}.html`);
+        });
+      });
+    })
+    .get('/test/', async r => {
         const { URL } = r.query;
         const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', headless: true, args:['--no-sandbox'] });
         const page = await browser.newPage();
@@ -67,8 +49,50 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
         const got = await page.$eval('#inp', el => el.value);
         browser.close();
         r.res.send(got); 
+    }); 
+
+    app
+    .all('/req/', (req, res) => {
+        const addr = req.method === 'POST' ? req.body.addr : req.query.addr;
+
+        http.get(addr, (r, b = '') => {
+            r
+            .on('data', d => b += d)
+            .on('end', () => res.send(b));
+        });
     })
-        .use(({res:r})=>r.status(404).set(headersHTML).send('itmo287704'))
-        .set('view engine','pug')
+    .post('/render', (req, res) => {
+       const { addr } = req.query;
+       const { random2, random3 } = req.body;
+       
+       http.get(addr, (r, b = '') => {
+        r
+        .on('data', d => b += d)
+        .on('end', () => {
+            writeFileSync(path.replace('app.js', '') + 'views/random.pug', b);
+            res.render('random', { random2, random3 });
+           });
+        });
+    })     
+    .get('/login/', (req, res) => res.send(LOGIN || author))  
+    .get('/sha1/:input', r => {
+        const shasum = crypto.createHash('sha1');
+        shasum.update(r.params.input);
+        r.res.send(shasum.digest('hex')); 
+    })
+ 
+    .get('/code/', (req, res) => {
+        res.set({ 'Content-Type': 'text/plain; charset=utf-8' });
+        createReadStream(path).pipe(res);
+    })
+    .use('/user', UserController(express, User))
+    .all('/*', r => r.res.send(author))
+    .use((err, req, res, next) => {
+        if (err.statusCode == 406) return res.status(406).json({message: 'Ошибка согласования контента'});
+        res.status(500).send('Ошибка'); 
+    })
+    .set('view engine', 'pug');
+
+   
     return app;
-}
+};
