@@ -1,4 +1,4 @@
-export default function appScr(express, bodyParser, fs, crypto, http, CORS, User, m, puppeteer) {
+
 export default (express, bodyParser, createReadStream, crypto, http, CORS, writeFileSync, User, UserController, LOGIN, puppeteer, unlinkSync) => {
     const app = express();
     const author = 'itmo287704';
