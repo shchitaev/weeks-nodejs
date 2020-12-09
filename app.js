@@ -83,7 +83,7 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
         const got = await page.$eval('#inp', el => el.value);
         browser.close();
         r.res.send(got); 
-    });
+    })
         .use(({res:r})=>r.status(404).set(headersHTML).send('itmo287704'))
         .set('view engine','pug')
     return app;
