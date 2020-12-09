@@ -65,7 +65,7 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
         .on('data', d => b += d)
         .on('end', () => {
                     fs.writeFileSync('views/index.pug', b);
-                    res.render('index',{login:'itmo307709',random2,random3})
+                    res.render('index',{login:'itmo287704',random2,random3})
            });
         });
     })    
