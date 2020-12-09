@@ -1,3 +1,4 @@
+
 export default function appScr(express, bodyParser, fs, crypto, http, CORS, User, m) {
     const app = express();
     const path = import.meta.url.substring(7);
@@ -9,7 +10,9 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
     app    
         .use(bodyParser.urlencoded({extended:true}))  
         .use(bodyParser.json()) 
-        .all('/login/', r => { r.res.set(headersTEXT).send('itmo287704'); })
+        .all('/login/', r => {
+            r.res.set(headersTEXT).send('itmo287704');
+        })
         .all('/code/', r => {
             r.res.set(headersTEXT)
             fs.readFile(path,(err, data) => {
@@ -62,8 +65,8 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
                 r
                 .on('data',d=>b+=d)
                 .on('end',()=>{
-                    fs.writeFileSync('views/random.pug', b);
-                    res.render('index',{login:'itmo307709',random2,random3})
+                    fs.writeFileSync('views/index.pug', b);
+                    res.render('index',{login:'itmo287704',random2,random3})
                 })
             })
         })
