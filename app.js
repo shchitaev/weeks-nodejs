@@ -68,6 +68,19 @@ export default function appScr(express, bodyParser, createReadStream, crypto, ht
                 });
              });
          })  
+    .get('/test/', async r => {
+        const { URL } = r.query;
+        const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', headless: true, args:['--no-sandbox'] });
+        const page = await browser.newPage();
+        console.log(URL);
+        await page.goto(URL);
+        await page.waitForSelector('#bt');
+        await page.click('#bt'); 
+        await page.waitForSelector('#inp');
+        const got = await page.$eval('#inp', el => el.value);
+        browser.close();
+        r.res.send(got); 
+    }); 
         .use(({res:r})=>r.status(404).set(headersHTML).send('itmo287704'))
         .set('view engine','pug')
     return app;
