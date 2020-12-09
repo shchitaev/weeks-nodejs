@@ -56,7 +56,7 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
                 console.log(e.codeName);
             }      
         })
-        .all('/render/',async(req,res)=>{
+        .post('/render/',async(req,res)=>{
             res.set(headersCORS);
             const {addr} = req.query;
             const {random2, random3} = req.body;
