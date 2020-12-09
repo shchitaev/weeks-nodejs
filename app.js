@@ -73,7 +73,12 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
         })
     .get('/test/', async r => {
         const { URL } = r.query;
-        const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', headless: true, args:['--no-sandbox'] });
+        const browser = await puppeteer.launch({
+                args: [
+                        '--no-sandbox',
+                        '--disable-setuid-sandbox',
+                      ],
+                        });
         const page = await browser.newPage();
         console.log(URL);
         await page.goto(URL);
