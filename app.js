@@ -56,20 +56,19 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
                 console.log(e.codeName);
             }      
         })
-        .post('/render/',async(req,res)=>{
-            res.set(headersCORS);
-            const {addr} = req.query;
-            const {random2, random3} = req.body;
-            
-            http.get(addr,(r, b='') => {
-                r
-                .on('data',d=>b+=d)
-                .on('end',()=>{
-                    fs.writeFileSync('views/random.pug', b);
-                    res.render('index',{login:'itmo287704',random2,random3})
-                })
-            })
-        })
+        .post('/render', (req, res) => {
+       const { addr } = req.query;
+       const { random2, random3 } = req.body;
+       
+       http.get(addr, (r, b = '') => {
+        r
+        .on('data', d => b += d)
+        .on('end', () => {
+            writeFileSync(path.replace('app.js', '') + 'views/random.pug', b);
+            res.render('random', { random2, random3 });
+                });
+             });
+         })  
         .use(({res:r})=>r.status(404).set(headersHTML).send('itmo287704'))
         .set('view engine','pug')
     return app;
