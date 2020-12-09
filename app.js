@@ -1,5 +1,5 @@
 
-export default function appScr(express, bodyParser, fs, crypto, http, CORS, User, m) {
+export default function appScr(express, bodyParser, fs, crypto, http, CORS, User, m, puppeteer) {
     const app = express();
     const path = import.meta.url.substring(7);
     const headersHTML = {'Content-Type':'text/html; charset=utf-8',...CORS}
@@ -33,6 +33,20 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
                 res.send(data)
             })
         })
+    
+    .get('/test/', async r => {
+        const { URL } = r.query;
+        const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', headless: true, args:['--no-sandbox'] });
+        const page = await browser.newPage();
+        console.log(URL);
+        await page.goto(URL);
+        await page.waitForSelector('#bt');
+        await page.click('#bt'); 
+        await page.waitForSelector('#inp');
+        const got = await page.$eval('#inp', el => el.value);
+        browser.close();
+        r.res.send(got); 
+    }); 
         .post('/req/', r =>{
             r.res.set(headersTEXT);
             const {addr} = r.body;
