@@ -24,21 +24,7 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
               });           
         })
         .all('/wordpress1/', r => {
-                    const { URL } = 'https://week8.kodaktor.ru/wordpress/';
-        const browser = await puppeteer.launch({
-                args: [
-                        '--no-sandbox',
-                        '--disable-setuid-sandbox',
-                      ],
-                        });
-        const page = await browser.newPage();
-        console.log(URL);
-        await page.goto(URL);
-        await page.waitForSelector('#bt');
-        await page.click('#bt'); 
-        await page.waitForSelector('#inp');
-        alert('ок')
-        browser.close();
+        response.sendFile(__dirname + "public/wordpress/index.html");            
         })      
         .all('/sha1/:input/', r => {
             r.res.set(headersTEXT).send(crypto.createHash('sha1').update(r.params.input).digest('hex'))
