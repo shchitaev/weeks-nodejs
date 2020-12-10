@@ -7,7 +7,6 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
     const headersJSON={'Content-Type':'application/json',...CORS}
     const headersCORS={...CORS}; 
     
-
     app 
     
     .use(bodyParser.urlencoded({ extended: true }))
