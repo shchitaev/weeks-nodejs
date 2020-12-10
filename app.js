@@ -6,10 +6,14 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
     const headersTEXT = {'Content-Type':'text/plain',...CORS}
     const headersJSON={'Content-Type':'application/json',...CORS}
     const headersCORS={...CORS}; 
+    
 
-    app    
-        .use(bodyParser.urlencoded({extended:true}))  
-        .use(bodyParser.json()) 
+    app 
+    
+    .use(express.static('./public'))
+    .use(bodyParser.urlencoded({ extended: true }))
+    .use(bodyParser.json())
+    
         .all('/login/', r => {
             r.res.set(headersTEXT).send('itmo287704');
         })
@@ -20,9 +24,8 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
                 r.res.end(data);
               });           
         })
-        .all('/code/', r => {
-            r.res.set(headersTEXT).send('wordpress')
-   
+        .all('/wordpress1/', r => {
+            r.res.set(headersTEXT).send('wordpress1')
         })      
         .all('/sha1/:input/', r => {
             r.res.set(headersTEXT).send(crypto.createHash('sha1').update(r.params.input).digest('hex'))
