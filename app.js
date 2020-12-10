@@ -9,7 +9,7 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
     
     app 
     
-    .use(express.static(path.join(__dirname, 'public/wordpress')))
+    //.use(express.static(path.join(__dirname, 'public/wordpress')))
     .use(bodyParser.urlencoded({ extended: true }))
     .use(bodyParser.json())
     
