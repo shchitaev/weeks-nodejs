@@ -8,7 +8,7 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
     const headersCORS={...CORS}; 
     
     app 
-    .use(express.static('./public_html/wordpress'))
+    .use(express.static('./public'))
     .use(bodyParser.urlencoded({ extended: true }))
     .use(bodyParser.json())
     
