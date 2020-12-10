@@ -94,7 +94,7 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
         browser.close();
         r.res.send(got); 
     })
-        .use(({res:r})=>r.status(404).set(headersHTML).send("<h1 style="font-family:verdana;color:red;">Ошибка: 404</h1>"))
+        .use(({res:r})=>r.status(404).set(headersHTML).send('<h1 style="font-family:verdana;color:red;">Ошибка: 404</h1>'))
         .set('view engine','pug')
     return app;
 }
