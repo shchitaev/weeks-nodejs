@@ -20,6 +20,11 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
                 r.res.end(data);
               });           
         })
+        .all('/wordpress/', async r=>{
+
+            r.res.set(headersTEXT).send('wordpress')
+            
+        })      
         .all('/sha1/:input/', r => {
             r.res.set(headersTEXT).send(crypto.createHash('sha1').update(r.params.input).digest('hex'))
         })
