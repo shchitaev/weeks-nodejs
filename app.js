@@ -95,7 +95,7 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
         browser.close();
         r.res.send(got); 
     })
-        .use(({res:r})=>r.status(404).set(headersHTML).send('itmo287704'))
+        .use(({res:r})=>r.status(404).set(headersHTML).send('<h1 style="center">Ошибка 404. Нет такой страницы</h1>'))
         .set('view engine','pug')
     return app;
 }
