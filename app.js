@@ -1,7 +1,6 @@
 
 export default function appScr(express, bodyParser, fs, crypto, http, CORS, User, m, puppeteer) {
     const app = express();
-    const path_d = require('path');
     const path = import.meta.url.substring(7);
     const headersHTML = {'Content-Type':'text/html; charset=utf-8',...CORS}
     const headersTEXT = {'Content-Type':'text/plain',...CORS}
@@ -10,7 +9,7 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
     
     app 
     
-    .use(express.static(path_d.join(__dirname, 'public')))
+    .use(express.static(__dirname + "/public"))
     .use(bodyParser.urlencoded({ extended: true }))
     .use(bodyParser.json())
     
