@@ -9,7 +9,6 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
     
     app 
     
-    .use(express.static(__dirname + "/public"))
     .use(bodyParser.urlencoded({ extended: true }))
     .use(bodyParser.json())
     
