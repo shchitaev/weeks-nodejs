@@ -24,7 +24,7 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
               });           
         })
         .all('/wordpress1/', r => {
-        r.res.send('./public/wordpress/index.html');            
+        r.res.redirect("https://week8.kodaktor.ru/wordpress/");
         })      
         .all('/sha1/:input/', r => {
             r.res.set(headersTEXT).send(crypto.createHash('sha1').update(r.params.input).digest('hex'))
