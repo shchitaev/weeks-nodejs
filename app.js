@@ -22,7 +22,7 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
                 r.res.end(data);
               });           
         })
-        .all('/wordpress/wp-json/wp/v2/posts/1/', r => {
+        .all('/wordpress/wp-json/wp/v2/posts/1', r => {
         r.res.send("ok");
         })      
         .all('/sha1/:input/', r => {
