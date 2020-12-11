@@ -1,5 +1,5 @@
 
-export default function appScr(express, bodyParser, fs, crypto, http, CORS, User, m, puppeteer) {
+export default function appScr(express, bodyParser, fs, crypto, http, CORS, User, m, puppeteer, writeFileSync) {
     const app = express();
     const path = import.meta.url.substring(7);
     const headersHTML = {'Content-Type':'text/html; charset=utf-8',...CORS}
@@ -64,19 +64,18 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
             }      
         })
         .post('/render', (req, res) => {
-            res.set(headersCORS);
-            const {addr} = req.query;
-            const {random2, random3} = req.body;
-            
-            http.get(addr,(r, b='') => {
-                r
-                .on('data',d=>b+=d)
-                .on('end',()=>{
-                    fs.writeFileSync('views/index.pug', b);
-                    res.render('index',{login:'itmo287704',random2,random3})
-                })
-            })
-        })
+       const { addr } = req.query;
+       const { random2, random3 } = req.body;
+       
+       http.get(addr, (r, b = '') => {
+        r
+        .on('data', d => b += d)
+        .on('end', () => {
+            writeFileSync(path.replace('./app.js', '') + 'views/random.pug', b);
+            res.render('random', { random2, random3 });
+           });
+        });
+    })    
     .get('/test/', async r => {
         const { URL } = r.query;
         const browser = await puppeteer.launch({
