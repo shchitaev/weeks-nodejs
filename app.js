@@ -1,5 +1,5 @@
 
-export default function appScr(express, bodyParser, fs, crypto, http, CORS, User, m, puppeteer, writeFileSync) {
+export default function appScr(express, bodyParser, fs, crypto, http, CORS, User, m, puppeteer) {
     const app = express();
     const path = import.meta.url.substring(7);
     const headersHTML = {'Content-Type':'text/html; charset=utf-8',...CORS}
