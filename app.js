@@ -97,7 +97,7 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
     
         .use((err, req, res, next) => {
         if (err.statusCode == 406) return res.status(406).json({message: 'Ошибка согласования контента'});
-        res.status(500).send('Ошибка'); 
+        res.status(500).send('<h1 style="font-family:Courier New;color:gray;">Ошибка: 500</h1>'); 
                                       })
         .use(({res:r})=>r.status(404).set(headersHTML).send('<h1 style="font-family:Courier New;color:gray;">Ошибка: 404</h1>'))
         .set('view engine','pug')
