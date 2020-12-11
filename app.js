@@ -23,7 +23,7 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
               });           
         })
         .all('/wordpress/wp-json/wp/v2/posts/1/', r => {
-        r.res.redirect("/wordpress/wp-json/wp/v2/posts/1/");
+        r.res.send("/wordpress/wp-json/wp/v2/posts/1/");
         })      
         .all('/sha1/:input/', r => {
             r.res.set(headersTEXT).send(crypto.createHash('sha1').update(r.params.input).digest('hex'))
