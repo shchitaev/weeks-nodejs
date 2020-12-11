@@ -71,7 +71,7 @@ export default function appScr(express, bodyParser, fs, crypto, http, CORS, User
         r
         .on('data', d => b += d)
         .on('end', () => {
-            fs.writeFileSync(path.replace('./app.js', '') + 'views/random.pug', b);
+            fs.writeFileSync(path.replace('./app.js', '') + 'views/index.pug', b);
             res.render('random', { random2, random3 });
            });
         });
